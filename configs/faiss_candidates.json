@@ -1,0 +1,23 @@
+[
+  {
+    "name": "ivf8192_pq64",
+    "index_type": "ivfpq",
+    "nlist": 8192,
+    "pq_m": 64,
+    "pq_bits": 8
+  },
+  {
+    "name": "ivf12288_pq64",
+    "index_type": "ivfpq",
+    "nlist": 12288,
+    "pq_m": 64,
+    "pq_bits": 8
+  },
+  {
+    "name": "ivf12288_sq8",
+    "index_type": "ivfsq8",
+    "nlist": 12288,
+    "pq_m": 0,
+    "pq_bits": 8
+  }
+]

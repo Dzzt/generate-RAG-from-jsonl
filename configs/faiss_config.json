@@ -1,0 +1,12 @@
+{
+  "name": "ivf8192_pq64",
+  "index_type": "ivfpq",
+  "nlist": 8192,
+  "pq_m": 64,
+  "pq_bits": 8,
+  "nprobe": 256,
+  "candidate_count": 300,
+  "use_float16_rerank": true,
+  "sample_recall": 0.9570000000000011,
+  "sample_query_ms": 0.18224250001367182
+}

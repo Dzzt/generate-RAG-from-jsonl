@@ -1,0 +1,13 @@
+{
+  "embedding_model": "ruri-embed",
+  "embedding_dimension": 768,
+  "query_prefix": "検索クエリ: ",
+  "document_prefix": "検索文書: ",
+  "target_chunk_chars": 1200,
+  "max_chunk_chars": 1600,
+  "overlap_chars": 200,
+  "min_chunk_chars": 80,
+  "embedding_batch_size": 16,
+  "shard_articles": 50000,
+  "save_float16": true
+}
