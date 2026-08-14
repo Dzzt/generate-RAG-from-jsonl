@@ -1,8 +1,11 @@
 from __future__ import annotations
 import sqlite3
+import zlib
 from pathlib import Path
 from models import Chunk
 from utils import normalize_title
+
+TEXT_COMPRESSION_LEVEL = 6
 
 SCHEMA = '''
 PRAGMA journal_mode=WAL;
@@ -13,7 +16,7 @@ CREATE TABLE IF NOT EXISTS chunks (
  normalized_title TEXT NOT NULL, url TEXT, section TEXT, chunk_no INTEGER NOT NULL,
  chunk_count INTEGER NOT NULL, prev_chunk_id INTEGER, next_chunk_id INTEGER,
  page_type TEXT NOT NULL, quality_weight REAL NOT NULL, vector_shard INTEGER NOT NULL,
- vector_row INTEGER NOT NULL, text TEXT NOT NULL);
+ vector_row INTEGER NOT NULL, text BLOB NOT NULL);
 CREATE TABLE IF NOT EXISTS completed_shards (
  shard_no INTEGER PRIMARY KEY, input_end_offset INTEGER NOT NULL,
  article_count INTEGER NOT NULL, chunk_count INTEGER NOT NULL,
@@ -33,7 +36,7 @@ prev_chunk_id, next_chunk_id, page_type, quality_weight, vector_shard, vector_ro
 def chunk_rows(chunks: list[Chunk], shard_no: int) -> list[tuple]:
     return [(
         c.chunk_id,c.article_id,c.title,normalize_title(c.title),c.url,c.section,c.chunk_no,c.chunk_count,
-        c.prev_chunk_id,c.next_chunk_id,c.page_type,c.quality_weight,shard_no,row,c.text
+        c.prev_chunk_id,c.next_chunk_id,c.page_type,c.quality_weight,shard_no,row,sqlite3.Binary(zlib.compress(c.text.encode('utf-8'), TEXT_COMPRESSION_LEVEL))
     ) for row,c in enumerate(chunks)]
 
 def finalize_indexes(con: sqlite3.Connection) -> None:
