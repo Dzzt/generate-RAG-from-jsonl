@@ -4,9 +4,17 @@ JSONL形式の記事データから、ローカルLLM +
 RAGシステムで使用する検索データを生成するプロジェクトです。
 
 現在の標準構成では、Wikipediaから生成した `ja_wiki.jsonl.bz2`
-を入力し、ruri-v3 (`ruri-embed`)
+を入力し、ruri-v3 (`model_embedding`)
 でEmbeddingを作成し、FAISSのshardとSQLiteメタデータを `../data/index/`
 に生成します。
+
+この `ja_wiki.jsonl.bz2` は、Hugging Faceで公開されている
+[`llm-book/japanese-wikipedia` の `ja_wiki.jsonl`](https://huggingface.co/datasets/llm-book/japanese-wikipedia/blob/main/ja_wiki.jsonl)
+の形式に基づいて生成したJSONLをbz2圧縮したものです。
+
+現在使用している `model_embedding` は、
+[`cl-nagoya/ruri-v3-310m`](https://huggingface.co/cl-nagoya/ruri-v3-310m)
+をOllamaで利用するために `model_embedding` という名前で `create` したEmbeddingモデルです。
 
 このREADMEは、**現在実際に使用しているRAGと同じ設定で再生成する場合**の手順を中心に記載します。設定の選定・再評価・カスタマイズについては
 `RESEARCH_GUIDE.md` を参照してください。
@@ -58,7 +66,7 @@ JSONLや生成済みindexはサイズが大きいため、Git管理対象にす�
 
 1.  `../data/jsonl/ja_wiki.jsonl.bz2` が存在する
 2.  Ollamaがインストールされ、起動できる
-3.  Ollamaに `ruri-embed` が存在する
+3.  Ollamaに `model_embedding` が存在する
 4.  Pythonから `ollama`, `faiss-cpu`, `numpy`, `tqdm` を利用できる
 5.  `configs/build_config.json` と `configs/faiss_config.json`
     を変更しない
@@ -71,7 +79,7 @@ JSONLや生成済みindexはサイズが大きいため、Git管理対象にす�
 
 ``` json
 {
-  "embedding_model": "ruri-embed",
+  "embedding_model": "model_embedding",
   "embedding_dimension": 768,
   "query_prefix": "検索クエリ: ",
   "document_prefix": "検索文書: ",
@@ -99,9 +107,9 @@ py -m pip install ollama faiss-cpu numpy tqdm
 
 標準ライブラリの `sqlite3`, `bz2`, `json` なども使用します。
 
-## ruri-embed
+## model_embedding
 
-EmbeddingにはOllama上の `ruri-embed` を使用します。
+EmbeddingにはOllama上の `model_embedding` を使用します。
 
 確認:
 
@@ -112,9 +120,11 @@ ollama list
 現在のRAGと互換性を保つには、**RAG生成時と検索時で同じEmbeddingモデル、次元数、query/document
 prefixを使用する必要があります。**
 
-`ruri-embed`
-はruri-v3-310mをOllamaから利用するために作成したモデル名です。既存環境に現在使用中の
-`ruri-embed` がある場合は、それをそのまま使用してください。
+`model_embedding`
+は、Hugging Faceで公開されている
+[`cl-nagoya/ruri-v3-310m`](https://huggingface.co/cl-nagoya/ruri-v3-310m)
+をOllamaから利用するために、`model_embedding` という名前で `create` したモデルです。
+既存環境に現在使用中の `model_embedding` がある場合は、それをそのまま使用してください。
 
 ## 入力JSONL
 
@@ -123,6 +133,10 @@ prefixを使用する必要があります。**
 ``` text
 ../data/jsonl/ja_wiki.jsonl.bz2
 ```
+
+このファイルは、
+[`llm-book/japanese-wikipedia` の `ja_wiki.jsonl`](https://huggingface.co/datasets/llm-book/japanese-wikipedia/blob/main/ja_wiki.jsonl)
+の形式に基づいて生成したものです。
 
 1行1記事で、少なくとも次の形を想定します。
 
@@ -160,7 +174,7 @@ research\sampling\02-embed-sample.cmd --overwrite
 ```
 
 デフォルトでは全JSONLを走査し、reservoir samplingで最大500,000
-chunkを抽出します。その後、そのsampleを `ruri-embed` でEmbeddingします。
+chunkを抽出します。その後、そのsampleを `model_embedding` でEmbeddingします。
 
 ## production build
 

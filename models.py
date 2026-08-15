@@ -40,7 +40,7 @@ class Chunk:
 
 @dataclass(slots=True)
 class BuildConfig:
-    embedding_model: str = "ruri-embed"
+    embedding_model: str = "model_embedding"
     embedding_dimension: int = 768
     query_prefix: str = "検索クエリ: "
     document_prefix: str = "検索文書: "

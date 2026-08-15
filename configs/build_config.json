@@ -1,5 +1,5 @@
 {
-  "embedding_model": "ruri-embed",
+  "embedding_model": "model_embedding",
   "embedding_dimension": 768,
   "query_prefix": "検索クエリ: ",
   "document_prefix": "検索文書: ",

@@ -6,6 +6,10 @@
 単に現在使用中のWikipedia RAGを同じ設定で再生成する場合は `README.md`
 だけで十分です。
 
+現在のWikipedia RAGで使用している `ja_wiki.jsonl.bz2` は、
+[`llm-book/japanese-wikipedia` の `ja_wiki.jsonl`](https://huggingface.co/datasets/llm-book/japanese-wikipedia/blob/main/ja_wiki.jsonl)
+の形式に基づいて生成したJSONLをbz2圧縮したものです。
+
 ------------------------------------------------------------------------
 
 ## 1. 調整工程の全体像
@@ -65,7 +69,7 @@ production RAG
 
 ``` json
 {
-  "embedding_model": "ruri-embed",
+  "embedding_model": "model_embedding",
   "embedding_dimension": 768,
   "query_prefix": "検索クエリ: ",
   "document_prefix": "検索文書: ",
@@ -86,8 +90,13 @@ Ollamaで使用するEmbeddingモデル名です。
 現在:
 
 ``` text
-ruri-embed
+model_embedding
 ```
+
+この `model_embedding` は、
+[`cl-nagoya/ruri-v3-310m`](https://huggingface.co/cl-nagoya/ruri-v3-310m)
+をOllamaで利用するために `model_embedding` という名前で `create` したものです。
+このREADME内で「現在のEmbeddingモデル」と書く場合は、このモデルを指します。
 
 Embeddingモデルを変更するとベクトル空間そのものが変わるため、**既存FAISS
 indexとの互換性はありません。**

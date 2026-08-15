@@ -5,6 +5,15 @@
 `README.md` は主に「RAGを生成する方法」を説明します。
 この文書はその続きとして、**生成後のFAISS / SQLite / vectorデータをどう扱うか**に絞っています。
 
+現在のWikipedia用indexは、
+[`llm-book/japanese-wikipedia` の `ja_wiki.jsonl`](https://huggingface.co/datasets/llm-book/japanese-wikipedia/blob/main/ja_wiki.jsonl)
+の形式に基づいて生成した `ja_wiki.jsonl.bz2` を入力として作成しています。
+
+Embeddingには、
+[`cl-nagoya/ruri-v3-310m`](https://huggingface.co/cl-nagoya/ruri-v3-310m)
+をOllamaで利用するために `model_embedding` という名前で `create` したモデルを使用しています。
+生成済みindexを別プログラムから利用する場合も、query側では同じEmbeddingモデルとprefix設定を使用する必要があります。
+
 ---
 
 ## 1. 生成された index は「一式」で使う
