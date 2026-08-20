@@ -54,8 +54,8 @@ def get_logical_input_size(path: Path) -> int:
         return path.stat().st_size
 
     print(
-        "圧縮JSONLの展開後サイズを確認しています"
-        "（ファイルは展開・保存しません）..."
+        "Checking uncompressed size of compressed JSONL "
+        "(file will not be extracted or saved)..."
     )
     with bz2.open(path, mode="rb") as file:
         file.seek(0, 2)
@@ -326,10 +326,29 @@ def main() -> int:
         )
         return 0
 
-    input_size_bytes = get_logical_input_size(
-        args.input
-    )
     session_started = time.perf_counter()
+    previous_progress_for_size = None
+    if progress_path.exists():
+        try:
+            previous_progress_for_size = read_json(progress_path)
+        except Exception:
+            previous_progress_for_size = None
+
+    if (
+        previous_progress_for_size
+        and int(previous_progress_for_size.get("input_size_bytes", 0)) > 0
+    ):
+        input_size_bytes = int(
+            previous_progress_for_size["input_size_bytes"]
+        )
+        logger.info(
+            "Using expanded input size from progress.json: %d bytes",
+            input_size_bytes,
+        )
+    else:
+        input_size_bytes = get_logical_input_size(
+            args.input
+        )
 
     completed_rows = connection.execute(
         "SELECT shard_no, input_end_offset, "
@@ -368,15 +387,7 @@ def main() -> int:
         completed,
     )
 
-    # Preserve the original build start time across resumes.
-    previous_progress = None
-    if progress_path.exists():
-        try:
-            previous_progress = read_json(
-                progress_path
-            )
-        except Exception:
-            previous_progress = None
+    previous_progress = previous_progress_for_size
 
     build_started_epoch = (
         float(
@@ -389,7 +400,6 @@ def main() -> int:
         else time.time()
     )
 
-    # Ensure the field exists in future progress writes.
     def write_progress(
         *,
         status: str,
@@ -417,7 +427,6 @@ def main() -> int:
             message=message,
         )
 
-        # Append this field without changing update_progress's public signature.
         progress = read_json(progress_path)
         progress["build_started_epoch"] = (
             build_started_epoch
@@ -441,6 +450,9 @@ def main() -> int:
     )
 
     if template_path.exists():
+        logger.info(
+            "trained_template.faiss already exists; skipping template training."
+        )
         trained_template = faiss.read_index(
             str(template_path)
         )
